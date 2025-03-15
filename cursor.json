@@ -1,5 +1,5 @@
 {
-    "version": "0.45.14",
+    "version": "0.46.11",
     "description": "Built to make you extraordinarily productive, Cursor is the best way to code with AI.",
     "homepage": "https://www.cursor.com/",
     "license": {
@@ -14,17 +14,12 @@
     ],
     "architecture": {
         "64bit": {
-            "url": "https://downloader.cursor.sh/windows/nsis/x64#/cursor_setup.exe"
+            "url": "https://downloads.cursor.com/production/ae378be9dc2f5f1a6a1a220c6e25f9f03c8d4e19/win32/x64/user-setup/CursorUserSetup-x64-0.46.11.exe",
+            "hash": "56be08ff0cbfba41ce86bd78b43420abec6232aa2adcbd5abf98210a9df3e1c0"
         }
     },
-    "installer": {
-        "script": [
-            "Expand-7zipArchive -Path \"$dir\\cursor_setup.exe\" -DestinationPath \"$dir\\extracted\"",
-            "Expand-7zipArchive -Path \"$dir\\extracted\\`$PLUGINSDIR\\app-64.7z\" -DestinationPath \"$dir\"",
-            "Remove-Item \"$dir\\extracted\", \"$dir\\cursor_setup.exe\" -Recurse -Force"
-        ]
-    },
-    "bin": "Cursor.exe",
+    "innosetup": true,
+    "extract_dir": "{code_GetDestDir}",
     "shortcuts": [
         [
             "Cursor.exe",
@@ -64,41 +59,16 @@
     },
     "persist": "data",
     "checkver": {
-        "regex": "(\\S+)",
-        "script": [
-            "$client = $null",
-            "try {",
-            "    $client = New-Object System.Net.WebClient",
-            "    $client.Headers.Add('User-Agent', 'Mozilla/5.0')",
-            "    Write-Host 'Sending request...'",
-            "    $headers = $client.OpenRead('https://downloader.cursor.sh/windows/nsis/x64/')",
-            "    Write-Host 'Request completed'",
-            "    $disposition = $client.ResponseHeaders.Get('Content-Disposition')",
-            "    Write-Host \"Content-Disposition: $disposition\"",
-            "    if ($disposition -match 'Cursor Setup ([\\d.]+)') {",
-            "        Write-Host \"Version found: $($matches[1])\"",
-            "        $matches[1]",
-            "    } else {",
-            "        Write-Host 'No version match found in Content-Disposition'",
-            "        Write-Host 'All response headers:'",
-            "        $client.ResponseHeaders | Format-List",
-            "        $null",
-            "    }",
-            "} catch {",
-            "    Write-Host \"Error occurred: $($_.Exception.Message)\"",
-            "    Write-Host \"Error type: $($_.Exception.GetType().Name)\"",
-            "    $null",
-            "} finally {",
-            "    if ($client) {",
-            "        $client.Dispose()",
-            "    }",
-            "}"
-        ]
+        "url": "https://www.cursor.com/api/download?platform=win32-x64&releaseTrack=stable",
+        "jsonpath": "$.downloadUrl",
+        "regex": "(?<url>.*CursorUserSetup-x64-(?<version>[\\d.]+)\\.exe)",
+        "replace": "${version}"
     },
     "autoupdate": {
         "architecture": {
             "64bit": {
-                "url": "https://downloader.cursor.sh/windows/nsis/x64/#cursor_setup.exe"
+                "url": "$matchUrl",
+                "hash": "skip"
             }
         }
     }
