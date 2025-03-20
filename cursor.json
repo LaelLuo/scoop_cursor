@@ -1,5 +1,5 @@
 {
-    "version": "0.45.14",
+    "version": "0.47.5",
     "description": "Built to make you extraordinarily productive, Cursor is the best way to code with AI.",
     "homepage": "https://www.cursor.com/",
     "license": {
@@ -14,20 +14,17 @@
     ],
     "architecture": {
         "64bit": {
-            "url": "https://downloader.cursor.sh/windows/nsis/x64#/cursor_setup.exe"
+            "url": "https://downloads.cursor.com/production/53d6da1322f934a1058e7569ee0847b24879d18c/win32/x64/user-setup/CursorUserSetup-x64-0.47.5.exe",
+            "hash": "5df2c647c4b4a195f27b61ca657b483bd8bf561053ecac2878d63b3d777b6d83"
         }
     },
-    "installer": {
-        "script": [
-            "Expand-7zipArchive -Path \"$dir\\cursor_setup.exe\" -DestinationPath \"$dir\\extracted\"",
-            "Expand-7zipArchive -Path \"$dir\\extracted\\`$PLUGINSDIR\\app-64.7z\" -DestinationPath \"$dir\"",
-            "Remove-Item \"$dir\\extracted\", \"$dir\\cursor_setup.exe\" -Recurse -Force"
-        ]
-    },
+    "innosetup": true,
+    "extract_dir": "{code_GetDestDir}",
     "shortcuts": [
         [
             "Cursor.exe",
-            "Cursor"
+            "Cursor",
+            "--user-data-dir=\"%SCOOP%\\apps\\cursor\\current\\data\\user-data\" --extensions-dir=\"%SCOOP%\\apps\\cursor\\current\\data\\extensions\""
         ]
     ],
     "post_install": [
@@ -63,41 +60,16 @@
     },
     "persist": "data",
     "checkver": {
-        "regex": "(\\S+)",
-        "script": [
-            "$client = $null",
-            "try {",
-            "    $client = New-Object System.Net.WebClient",
-            "    $client.Headers.Add('User-Agent', 'Mozilla/5.0')",
-            "    Write-Host 'Sending request...'",
-            "    $headers = $client.OpenRead('https://downloader.cursor.sh/windows/nsis/x64/')",
-            "    Write-Host 'Request completed'",
-            "    $disposition = $client.ResponseHeaders.Get('Content-Disposition')",
-            "    Write-Host \"Content-Disposition: $disposition\"",
-            "    if ($disposition -match 'Cursor Setup ([\\d.]+)') {",
-            "        Write-Host \"Version found: $($matches[1])\"",
-            "        $matches[1]",
-            "    } else {",
-            "        Write-Host 'No version match found in Content-Disposition'",
-            "        Write-Host 'All response headers:'",
-            "        $client.ResponseHeaders | Format-List",
-            "        $null",
-            "    }",
-            "} catch {",
-            "    Write-Host \"Error occurred: $($_.Exception.Message)\"",
-            "    Write-Host \"Error type: $($_.Exception.GetType().Name)\"",
-            "    $null",
-            "} finally {",
-            "    if ($client) {",
-            "        $client.Dispose()",
-            "    }",
-            "}"
-        ]
+        "url": "https://api2.cursor.sh/updates/api/update/win32-x64-archive/cursor/0.0.0/stable",
+        "jsonpath": "$.url",
+        "regex": "(?<url>.*CursorUserSetup-x64-(?<version>[\\d.]+)\\.exe)",
+        "replace": "${version}"
     },
     "autoupdate": {
         "architecture": {
             "64bit": {
-                "url": "https://downloader.cursor.sh/windows/nsis/x64/#cursor_setup.exe"
+                "url": "$matchUrl",
+                "hash": "skip"
             }
         }
     }
