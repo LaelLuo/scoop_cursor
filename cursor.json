@@ -6,12 +6,6 @@
     "identifier": "Proprietary",
     "url": "https://www.cursor.com/terms-of-service"
   },
-  "notes": [
-    "Add Cursor as a context menu option by running:",
-    "'reg import \"$dir\\install-context.reg\"'",
-    "For file associations, run:",
-    "'reg import \"$dir\\install-associations.reg\"'"
-  ],
   "architecture": {
     "64bit": {
       "url": "https://downloads.cursor.com/production/53d6da1322f934a1058e7569ee0847b24879d18c/win32/x64/user-setup/CursorUserSetup-x64-0.47.5.exe",
